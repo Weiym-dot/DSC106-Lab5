@@ -72,7 +72,7 @@ button {
 .projects article {
     display: grid;
     grid-template-rows: subgrid;
-    grid-row: span 3;
+    grid-row: span 4;
 }
 .projects h2 {
     margin: 0;
@@ -145,4 +145,127 @@ select {
   grid-row: 2;
   margin: 0;
   font-size: 2rem;
+}
+
+.project-year {
+  font-family: Baskerville, serif;
+  font-variant-numeric: oldstyle-nums;
+  color: #666;
+  margin: 0.2rem 0 0.8rem;
+}
+
+#projects-pie-plot {
+  max-width: 20em;
+  margin-block: 2em;
+  overflow: visible;
+}
+
+/* Pie chart + legend container */
+
+.projects-chart-container {
+  display: flex;
+  align-items: center;
+  gap: 2em;
+  flex-wrap: wrap;
+}
+
+
+/* Legend */
+
+.legend {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(9em, 1fr)
+    );
+
+  gap: 1em 2em;
+
+  flex: 1;
+
+  list-style: none;
+
+  border: 1px solid #ccc;
+  border-radius: 0.5em;
+
+  padding: 1em;
+  margin: 1em 0;
+}
+
+
+/* Each legend item */
+
+.legend-item {
+  display: flex;
+  align-items: center;
+
+  gap: 0.5em;
+}
+
+
+/* Colored square */
+
+.swatch {
+  display: inline-block;
+
+  width: 1em;
+  height: 1em;
+
+  background-color:
+    var(--color);
+
+  border-radius: 0.25em;
+
+  flex-shrink: 0;
+}
+
+.searchBar {
+  width: 100%;
+  padding: 0.75em 1em;
+  margin-block: 1em 2em;
+
+  font: inherit;
+
+  border: 1px solid #ccc;
+  border-radius: 0.5em;
+}
+
+#projects-pie-plot path {
+  cursor: pointer;
+  transition: 300ms;
+}
+
+
+/* Fade out other wedges when hovering one */
+#projects-pie-plot:has(path:hover)
+path:not(:hover) {
+  opacity: 0.5;
+}
+
+
+/* Selected wedge / legend item */
+.selected {
+  --color: oklch(60% 45% 0) !important;
+}
+
+
+/* Selected pie wedge */
+.selected:is(path) {
+  fill: var(--color);
+}
+
+
+/* Selected legend item */
+.legend-item.selected {
+  font-weight: bold;
+}
+
+
+/* Optional:
+   make selected legend swatch
+   use the selected color */
+.legend-item.selected .swatch {
+  background-color: var(--color);
 }

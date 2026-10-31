@@ -10,6 +10,13 @@ function $$(selector, context = document) {
 // currentLink?.classList.add('current');
 
 // Catelog Setting
+
+const BASE_PATH =
+  (location.hostname === "localhost" ||
+   location.hostname === "127.0.0.1")
+    ? "/"
+    : "/DSC106-Lab5/";
+
 let pages = [
   { url: '', title: 'Home' },
   { url: 'projects/', title: 'Project' },
@@ -24,10 +31,6 @@ document.body.prepend(nav);
 for (let p of pages) {
   let url = p.url;
   let title = p.title;
-
-  const BASE_PATH = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
-  ? "/"                  // Local server
-  : "/DSC-106-Lab-3/";         // GitHub Pages repo name
 
   // if (!url.startsWith('http')) { url = BASE_PATH + url; }
   url = !url.startsWith('http') ? BASE_PATH + url : url;
@@ -136,6 +139,7 @@ export async function fetchJSON(url) {
   }
 }
 
+// Display projects
 export function renderProjects(
   projects,
   containerElement,
@@ -144,15 +148,25 @@ export function renderProjects(
   containerElement.innerHTML = '';
 
   for (let project of projects) {
+
     const article =
       document.createElement('article');
 
+    const imageURL =
+      project.image.startsWith('http')
+        ? project.image
+        : BASE_PATH + project.image;
+
     article.innerHTML = `
       <${headingLevel}>${project.title}</${headingLevel}>
+
+      <p class="project-year">${project.year}</p>
+
       <img
-        src="${project.image}"
+        src="${imageURL}"
         alt="${project.title}"
       >
+
       <p>${project.description}</p>
     `;
 
