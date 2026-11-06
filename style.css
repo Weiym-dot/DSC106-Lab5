@@ -269,3 +269,206 @@ path:not(:hover) {
 .legend-item.selected .swatch {
   background-color: var(--color);
 }
+
+
+
+/* -----------------------------------
+   Lab 6 - Meta statistics
+----------------------------------- */
+
+.stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(12em, 1fr)
+    );
+
+  gap: 2em;
+
+  margin-block: 2em;
+}
+
+
+.stat {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.25em;
+}
+
+
+.stats dt {
+  font-weight: bold;
+
+  color: #666;
+}
+
+
+.stats dd {
+  margin: 0;
+
+  font-size: 1.5em;
+}
+
+/* -----------------------------------
+   Lab 6 - Scatterplot
+----------------------------------- */
+
+#chart {
+  margin-block: 2em;
+}
+
+
+#chart svg {
+  width: 100%;
+
+  height: auto;
+}
+
+
+/* Horizontal grid lines */
+
+.gridlines line {
+  stroke: #ccc;
+
+  stroke-opacity: 0.3;
+}
+
+
+.gridlines path {
+  display: none;
+}
+
+/* -----------------------------------
+   Lab 6 - Tooltip
+----------------------------------- */
+
+
+/* Information list layout */
+
+dl.info {
+  display: grid;
+
+  grid-template-columns:
+    auto 1fr;
+
+  gap:
+    0.25em 1em;
+
+  margin: 0;
+
+
+  transition-duration:
+    500ms;
+
+  transition-property:
+    opacity,
+    visibility;
+}
+
+
+/* Labels */
+
+dl.info dt {
+  color: #666;
+
+  font-weight: normal;
+}
+
+
+/* Values */
+
+dl.info dd {
+  margin: 0;
+
+  font-weight: bold;
+}
+
+
+/* Tooltip box */
+
+.tooltip {
+  position: fixed;
+
+  top: 1em;
+
+  left: 1em;
+
+
+  padding: 1em;
+
+
+  background-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.9
+    );
+
+
+  border-radius:
+    0.5em;
+
+
+  box-shadow:
+    0 4px 12px
+    rgba(
+      0,
+      0,
+      0,
+      0.15
+    );
+
+
+  backdrop-filter:
+    blur(5px);
+
+
+  pointer-events:
+    none;
+
+
+  z-index:
+    10;
+}
+
+
+/* Hidden tooltip */
+
+dl.info[hidden]:not(
+  :hover,
+  :focus-within
+) {
+  opacity: 0;
+
+  visibility: hidden;
+}
+
+
+/* -----------------------------------
+   Hover effect on scatterplot dots
+----------------------------------- */
+
+#chart circle {
+  transition:
+    200ms;
+
+  transform-origin:
+    center;
+
+  transform-box:
+    fill-box;
+
+  cursor:
+    pointer;
+}
+
+
+#chart circle:hover {
+  transform:
+    scale(1.5);
+}
