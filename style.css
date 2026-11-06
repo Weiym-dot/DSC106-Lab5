@@ -272,9 +272,9 @@ path:not(:hover) {
 
 
 
-/* -----------------------------------
-   Lab 6 - Meta statistics
------------------------------------ */
+/* ===================================
+   Lab 6 - Summary statistics
+=================================== */
 
 .stats {
   display: grid;
@@ -313,9 +313,10 @@ path:not(:hover) {
   font-size: 1.5em;
 }
 
-/* -----------------------------------
+
+/* ===================================
    Lab 6 - Scatterplot
------------------------------------ */
+=================================== */
 
 #chart {
   margin-block: 2em;
@@ -342,12 +343,10 @@ path:not(:hover) {
   display: none;
 }
 
-/* -----------------------------------
-   Lab 6 - Tooltip
------------------------------------ */
 
-
-/* Information list layout */
+/* ===================================
+   Tooltip
+=================================== */
 
 dl.info {
   display: grid;
@@ -360,7 +359,6 @@ dl.info {
 
   margin: 0;
 
-
   transition-duration:
     500ms;
 
@@ -370,16 +368,12 @@ dl.info {
 }
 
 
-/* Labels */
-
 dl.info dt {
   color: #666;
 
   font-weight: normal;
 }
 
-
-/* Values */
 
 dl.info dd {
   margin: 0;
@@ -388,8 +382,6 @@ dl.info dd {
 }
 
 
-/* Tooltip box */
-
 .tooltip {
   position: fixed;
 
@@ -397,9 +389,7 @@ dl.info dd {
 
   left: 1em;
 
-
   padding: 1em;
-
 
   background-color:
     rgba(
@@ -409,10 +399,8 @@ dl.info dd {
       0.9
     );
 
-
   border-radius:
     0.5em;
-
 
   box-shadow:
     0 4px 12px
@@ -423,21 +411,16 @@ dl.info dd {
       0.15
     );
 
-
   backdrop-filter:
     blur(5px);
 
-
   pointer-events:
     none;
-
 
   z-index:
     10;
 }
 
-
-/* Hidden tooltip */
 
 dl.info[hidden]:not(
   :hover,
@@ -449,9 +432,9 @@ dl.info[hidden]:not(
 }
 
 
-/* -----------------------------------
-   Hover effect on scatterplot dots
------------------------------------ */
+/* ===================================
+   Dot interaction
+=================================== */
 
 #chart circle {
   transition:
@@ -471,4 +454,48 @@ dl.info[hidden]:not(
 #chart circle:hover {
   transform:
     scale(1.5);
+}
+
+
+/* ===================================
+   Step 5 - Selected dots
+=================================== */
+
+#chart circle.selected {
+  fill: #ff6b6b;
+}
+
+
+/* ===================================
+   Step 5 - Brush rectangle
+=================================== */
+
+@keyframes marching-ants {
+
+  to {
+    stroke-dashoffset:
+      -8;
+  }
+}
+
+
+#chart .selection {
+
+  fill-opacity:
+    0.1;
+
+  stroke:
+    black;
+
+  stroke-opacity:
+    0.7;
+
+  stroke-dasharray:
+    5 3;
+
+  animation:
+    marching-ants
+    2s
+    linear
+    infinite;
 }

@@ -3,8 +3,18 @@ import * as d3
 
 
 // =====================================
+// Global variables
+// Needed by Step 5 brushing
+// =====================================
+
+let xScale;
+let yScale;
+let commits;
+
+
+// =====================================
 // Step 1.1
-// Load line-level data from loc.csv
+// Load line-level data
 // =====================================
 
 async function loadData() {
@@ -108,6 +118,9 @@ function processCommits(data) {
         };
 
 
+        // Keep original line-level data
+        // for language breakdown later
+
         Object.defineProperty(
           ret,
           'lines',
@@ -176,7 +189,7 @@ function addStat(
 
 function renderCommitInfo(
   data,
-  commits
+  commitsGiven
 ) {
 
   const stats =
@@ -203,7 +216,9 @@ function renderCommitInfo(
 
   addStat(
     dl,
+
     'Total <abbr title="Lines of code">LOC</abbr>',
+
     data.length
   );
 
@@ -212,8 +227,10 @@ function renderCommitInfo(
 
   addStat(
     dl,
+
     'Total commits',
-    commits.length
+
+    commitsGiven.length
   );
 
 
@@ -230,7 +247,9 @@ function renderCommitInfo(
 
   addStat(
     dl,
+
     'Number of files',
+
     numberOfFiles
   );
 
@@ -246,9 +265,10 @@ function renderCommitInfo(
 
   addStat(
     dl,
+
     'Average line length',
-    averageLineLength
-      .toFixed(1)
+
+    averageLineLength.toFixed(1)
   );
 
 
@@ -263,7 +283,9 @@ function renderCommitInfo(
 
   addStat(
     dl,
+
     'Maximum depth',
+
     maxDepth
   );
 
@@ -273,20 +295,19 @@ function renderCommitInfo(
   const workByDay =
     d3.rollups(
 
-      commits,
+      commitsGiven,
 
       (v) =>
         v.length,
 
       (d) =>
-        d.datetime
-          .toLocaleString(
-            'en',
-            {
-              weekday:
-                'long'
-            }
-          )
+        d.datetime.toLocaleString(
+          'en',
+          {
+            weekday:
+              'long'
+          }
+        )
     );
 
 
@@ -299,7 +320,9 @@ function renderCommitInfo(
 
   addStat(
     dl,
+
     'Most active day',
+
     mostActiveDay
   );
 }
@@ -348,16 +371,12 @@ function renderTooltipContent(
     );
 
 
-  // Commit link
-
   link.href =
     commit.url;
 
   link.textContent =
     commit.id;
 
-
-  // Date
 
   date.textContent =
     commit.datetime
@@ -370,8 +389,6 @@ function renderTooltipContent(
       );
 
 
-  // Time
-
   time.textContent =
     commit.datetime
       ?.toLocaleString(
@@ -383,13 +400,9 @@ function renderTooltipContent(
       );
 
 
-  // Author
-
   author.textContent =
     commit.author;
 
-
-  // Lines edited
 
   lines.textContent =
     commit.totalLines;
@@ -418,7 +431,7 @@ function updateTooltipVisibility(
 
 // =====================================
 // Step 3.4
-// Move tooltip near mouse cursor
+// Position tooltip
 // =====================================
 
 function updateTooltipPosition(
@@ -441,13 +454,333 @@ function updateTooltipPosition(
 
 
 // =====================================
-// Step 2 + Step 3
-// Scatterplot
+// Step 5.4
+// Test whether a commit lies
+// inside the brush rectangle
+// =====================================
+
+function isCommitSelected(
+  selection,
+  commit
+) {
+
+  if (!selection) {
+    return false;
+  }
+
+
+  // Brush selection:
+  //
+  // [
+  //   [x0, y0],
+  //   [x1, y1]
+  // ]
+
+  const [
+    x0,
+    x1
+  ] =
+    selection.map(
+      (d) => d[0]
+    );
+
+
+  const [
+    y0,
+    y1
+  ] =
+    selection.map(
+      (d) => d[1]
+    );
+
+
+  // Convert commit data
+  // into SVG coordinates
+
+  const x =
+    xScale(
+      commit.datetime
+    );
+
+
+  const y =
+    yScale(
+      commit.hourFrac
+    );
+
+
+  // Check whether the point
+  // is inside the rectangle
+
+  return (
+    x >= x0 &&
+    x <= x1 &&
+    y >= y0 &&
+    y <= y1
+  );
+}
+
+
+// =====================================
+// Step 5.5
+// Show number of selected commits
+// =====================================
+
+function renderSelectionCount(
+  selection
+) {
+
+  const selectedCommits =
+    selection
+
+      ? commits.filter(
+          (d) =>
+            isCommitSelected(
+              selection,
+              d
+            )
+        )
+
+      : [];
+
+
+  const countElement =
+    document.querySelector(
+      '#selection-count'
+    );
+
+
+  countElement.textContent =
+    `${
+      selectedCommits.length || 'No'
+    } commits selected`;
+
+
+  return selectedCommits;
+}
+
+
+// =====================================
+// Step 5.6
+// Show language breakdown
+// =====================================
+
+function renderLanguageBreakdown(
+  selection
+) {
+
+  const selectedCommits =
+    selection
+
+      ? commits.filter(
+          (d) =>
+            isCommitSelected(
+              selection,
+              d
+            )
+        )
+
+      : [];
+
+
+  const container =
+    document.getElementById(
+      'language-breakdown'
+    );
+
+
+  // Nothing selected:
+  // clear the breakdown
+
+  if (
+    selectedCommits.length === 0
+  ) {
+
+    container.innerHTML =
+      '';
+
+    return;
+  }
+
+
+  // Get all individual code lines
+  // belonging to selected commits
+
+  const lines =
+    selectedCommits.flatMap(
+      (d) =>
+        d.lines
+    );
+
+
+  // Count lines by language/type
+
+  const breakdown =
+    d3.rollup(
+
+      lines,
+
+      (v) =>
+        v.length,
+
+      (d) =>
+        d.type
+    );
+
+
+  container.innerHTML =
+    '';
+
+
+  // Display each language
+
+  for (
+    const [
+      language,
+      count
+    ]
+    of breakdown
+  ) {
+
+    const proportion =
+      count
+      /
+      lines.length;
+
+
+    const formatted =
+      d3.format(
+        '.1~%'
+      )(
+        proportion
+      );
+
+
+    container.innerHTML += `
+      <div class="stat">
+        <dt>${language}</dt>
+        <dd>
+          ${count} lines
+          (${formatted})
+        </dd>
+      </div>
+    `;
+  }
+}
+
+
+// =====================================
+// Step 5.4
+// Called whenever brush changes
+// =====================================
+
+function brushed(
+  event
+) {
+
+  const selection =
+    event.selection;
+
+
+  // Highlight selected dots
+
+  d3
+    .select('#chart')
+    .selectAll('circle')
+
+    .classed(
+      'selected',
+
+      (d) =>
+        isCommitSelected(
+          selection,
+          d
+        )
+    );
+
+
+  // Update selected count
+
+  renderSelectionCount(
+    selection
+  );
+
+
+  // Update language breakdown
+
+  renderLanguageBreakdown(
+    selection
+  );
+}
+
+
+// =====================================
+// Step 5.1 + Step 5.2
+// Create brush
+// =====================================
+
+function createBrushSelector(
+  svg,
+  usableArea
+) {
+
+  const brush =
+    d3
+      .brush()
+
+      // Restrict brushing
+      // to plotting area
+
+      .extent([
+        [
+          usableArea.left,
+          usableArea.top
+        ],
+
+        [
+          usableArea.right,
+          usableArea.bottom
+        ]
+      ])
+
+      // Listen continuously
+      // while brushing
+
+      .on(
+        'start brush end',
+        brushed
+      );
+
+
+  // Add brush to SVG
+
+  svg.call(
+    brush
+  );
+
+
+  // Brush creates an invisible overlay
+  // that would block circle hover.
+  //
+  // Raise dots and following elements
+  // above the overlay.
+
+  svg
+    .selectAll(
+      '.dots, .overlay ~ *'
+    )
+    .raise();
+}
+
+
+// =====================================
+// Step 2 + 3 + 4 + 5
+// Render scatterplot
 // =====================================
 
 function renderScatterPlot(
   data,
-  commits
+  commitsGiven
 ) {
 
 
@@ -461,10 +794,6 @@ function renderScatterPlot(
   const height =
     600;
 
-
-  // -----------------------------------
-  // Margins
-  // -----------------------------------
 
   const margin = {
 
@@ -481,10 +810,6 @@ function renderScatterPlot(
       50,
   };
 
-
-  // -----------------------------------
-  // Usable plot area
-  // -----------------------------------
 
   const usableArea = {
 
@@ -515,7 +840,7 @@ function renderScatterPlot(
 
 
   // -----------------------------------
-  // Create SVG
+  // SVG
   // -----------------------------------
 
   const svg =
@@ -542,19 +867,18 @@ function renderScatterPlot(
   // ===================================
   // Step 2.1
   // Scales
+  //
+  // Step 5 requires these to be
+  // global variables.
   // ===================================
 
-
-  // X scale:
-  // commit date
-
-  const xScale =
+  xScale =
     d3
       .scaleTime()
 
       .domain(
         d3.extent(
-          commits,
+          commitsGiven,
           (d) =>
             d.datetime
         )
@@ -568,10 +892,7 @@ function renderScatterPlot(
       .nice();
 
 
-  // Y scale:
-  // time of day
-
-  const yScale =
+  yScale =
     d3
       .scaleLinear()
 
@@ -587,8 +908,54 @@ function renderScatterPlot(
 
 
   // ===================================
+  // Step 4
+  // Radius scale
+  // ===================================
+
+  const [
+    minLines,
+    maxLines
+  ] =
+    d3.extent(
+      commitsGiven,
+      (d) =>
+        d.totalLines
+    );
+
+
+  const rScale =
+    d3
+      .scaleSqrt()
+
+      .domain([
+        minLines,
+        maxLines
+      ])
+
+      .range([
+        2,
+        30
+      ]);
+
+
+  // ===================================
+  // Step 4.3
+  // Large circles first
+  // ===================================
+
+  const sortedCommits =
+    d3.sort(
+
+      commitsGiven,
+
+      (d) =>
+        -d.totalLines
+    );
+
+
+  // ===================================
   // Step 2.3
-  // Horizontal grid lines
+  // Grid lines
   // ===================================
 
   const gridlines =
@@ -626,8 +993,7 @@ function renderScatterPlot(
 
 
   // ===================================
-  // Step 2.1 + Step 3
-  // Draw interactive dots
+  // Dots
   // ===================================
 
   const dots =
@@ -646,12 +1012,15 @@ function renderScatterPlot(
     )
 
     .data(
-      commits
+      sortedCommits
     )
 
     .join(
       'circle'
     )
+
+
+    // X = commit date
 
     .attr(
       'cx',
@@ -662,6 +1031,9 @@ function renderScatterPlot(
         )
     )
 
+
+    // Y = time of day
+
     .attr(
       'cy',
 
@@ -671,10 +1043,18 @@ function renderScatterPlot(
         )
     )
 
+
+    // Size = lines edited
+
     .attr(
       'r',
-      5
+
+      (d) =>
+        rScale(
+          d.totalLines
+        )
     )
+
 
     .attr(
       'fill',
@@ -682,9 +1062,14 @@ function renderScatterPlot(
     )
 
 
+    .style(
+      'fill-opacity',
+      0.7
+    )
+
+
     // =================================
-    // Step 3.3 + 3.4
-    // Hover interaction
+    // Step 3 tooltip
     // =================================
 
     .on(
@@ -692,13 +1077,26 @@ function renderScatterPlot(
 
       (event, commit) => {
 
+        d3
+          .select(
+            event.currentTarget
+          )
+
+          .style(
+            'fill-opacity',
+            1
+          );
+
+
         renderTooltipContent(
           commit
         );
 
+
         updateTooltipVisibility(
           true
         );
+
 
         updateTooltipPosition(
           event
@@ -706,9 +1104,6 @@ function renderScatterPlot(
       }
     )
 
-
-    // Optional improvement:
-    // keep tooltip following mouse
 
     .on(
       'mousemove',
@@ -725,7 +1120,18 @@ function renderScatterPlot(
     .on(
       'mouseleave',
 
-      () => {
+      (event) => {
+
+        d3
+          .select(
+            event.currentTarget
+          )
+
+          .style(
+            'fill-opacity',
+            0.7
+          );
+
 
         updateTooltipVisibility(
           false
@@ -738,7 +1144,6 @@ function renderScatterPlot(
   // Step 2.2
   // Axes
   // ===================================
-
 
   const xAxis =
     d3.axisBottom(
@@ -802,6 +1207,17 @@ function renderScatterPlot(
     .call(
       yAxis
     );
+
+
+  // ===================================
+  // Step 5
+  // Add brushing last
+  // ===================================
+
+  createBrushSelector(
+    svg,
+    usableArea
+  );
 }
 
 
@@ -813,7 +1229,7 @@ const data =
   await loadData();
 
 
-const commits =
+commits =
   processCommits(
     data
   );
