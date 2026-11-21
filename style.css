@@ -273,7 +273,8 @@ path:not(:hover) {
 
 
 /* ===================================
-   Lab 6 - Summary statistics
+   Lab 6 + Lab 8
+   Summary statistics
 =================================== */
 
 .stats {
@@ -314,20 +315,64 @@ path:not(:hover) {
 }
 
 
+
 /* ===================================
-   Lab 6 - Scatterplot
+   Lab 8 - Commit time slider
 =================================== */
 
-#chart {
+.commit-filter {
   margin-block: 2em;
 }
 
 
+.commit-filter label {
+  display: flex;
+
+  grid-column: auto;
+
+  grid-template-columns: none;
+
+  align-items: baseline;
+
+  gap: 1em;
+}
+
+
+.commit-filter time {
+  margin-left: auto;
+
+  color: #666;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+#commit-progress {
+  width: 100%;
+
+  margin-top: 0.75em;
+}
+
+
+
+/* ===================================
+   Lab 6 + Lab 8 Scatterplot
+=================================== */
+
+#chart {
+  margin-block: 1em;
+}
+
+
 #chart svg {
+  display: block;
+
   width: 100%;
 
   height: auto;
 }
+
 
 
 /* Horizontal grid lines */
@@ -342,6 +387,7 @@ path:not(:hover) {
 .gridlines path {
   display: none;
 }
+
 
 
 /* ===================================
@@ -396,8 +442,10 @@ dl.info dd {
       255,
       255,
       255,
-      0.9
+      0.95
     );
+
+  color: #222;
 
   border-radius:
     0.5em;
@@ -418,7 +466,7 @@ dl.info dd {
     none;
 
   z-index:
-    10;
+    100;
 }
 
 
@@ -432,13 +480,21 @@ dl.info[hidden]:not(
 }
 
 
+
 /* ===================================
-   Dot interaction
+   Lab 6 + Lab 8
+   Scatterplot dot interaction
 =================================== */
 
 #chart circle {
+
   transition:
-    200ms;
+    cx 200ms,
+    cy 200ms,
+    r 200ms,
+    fill 200ms,
+    fill-opacity 200ms,
+    transform 200ms;
 
   transform-origin:
     center;
@@ -448,6 +504,14 @@ dl.info[hidden]:not(
 
   cursor:
     pointer;
+
+
+  /* Lab 8 Step 1.4:
+     circles animate in from radius 0 */
+
+  @starting-style {
+    r: 0;
+  }
 }
 
 
@@ -457,8 +521,9 @@ dl.info[hidden]:not(
 }
 
 
+
 /* ===================================
-   Step 5 - Selected dots
+   Lab 6 - Selected dots
 =================================== */
 
 #chart circle.selected {
@@ -466,8 +531,9 @@ dl.info[hidden]:not(
 }
 
 
+
 /* ===================================
-   Step 5 - Brush rectangle
+   Lab 6 - Brush rectangle
 =================================== */
 
 @keyframes marching-ants {
@@ -476,6 +542,7 @@ dl.info[hidden]:not(
     stroke-dashoffset:
       -8;
   }
+
 }
 
 
@@ -498,4 +565,321 @@ dl.info[hidden]:not(
     2s
     linear
     infinite;
+
+}
+
+
+
+/* ===================================
+   Lab 8 Step 2
+   File unit visualization
+=================================== */
+
+.files-section {
+  margin-top: 4em;
+}
+
+
+#files {
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(12em, 1fr)
+    4fr;
+
+  gap:
+    1em;
+
+  margin-top:
+    2em;
+
+}
+
+
+
+/* Each file occupies one row */
+
+#files > div {
+
+  grid-column:
+    1 / -1;
+
+  display: grid;
+
+  grid-template-columns:
+    subgrid;
+
+  padding-block:
+    0.75em;
+
+  border-bottom:
+    1px solid
+    color-mix(
+      in oklch,
+      canvasText,
+      transparent 85%
+    );
+
+}
+
+
+
+/* Filename */
+
+#files dt {
+
+  grid-column:
+    1;
+
+}
+
+
+#files dt code {
+
+  display: block;
+
+  overflow-wrap:
+    anywhere;
+
+}
+
+
+
+/* Number of lines */
+
+#files dt small {
+
+  display: block;
+
+  margin-top:
+    0.25em;
+
+  font-size:
+    0.75em;
+
+  opacity:
+    0.6;
+
+}
+
+
+
+/* Dot container */
+
+#files dd {
+
+  grid-column:
+    2;
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items:
+    flex-start;
+
+  align-content:
+    flex-start;
+
+  gap:
+    0.15em;
+
+  padding-top:
+    0.6em;
+
+  margin-left:
+    0;
+
+}
+
+
+
+/* Each dot = one LOC */
+
+.loc {
+
+  display: flex;
+
+  width: 0.5em;
+
+  aspect-ratio:
+    1;
+
+  border-radius:
+    50%;
+
+  background:
+    var(
+      --color,
+      steelblue
+    );
+
+}
+
+
+
+/* ===================================
+   Lab 8 Step 3
+   Scrollytelling
+=================================== */
+
+#scrolly-1 {
+
+  position: relative;
+
+  display: flex;
+
+  gap: 1.5em;
+
+  align-items:
+    flex-start;
+
+}
+
+
+#scrolly-1 > * {
+
+  flex: 1;
+
+  min-width: 0;
+
+}
+
+
+
+/* -----------------------------------
+   Narrative column
+----------------------------------- */
+
+#scatter-story {
+
+  position: relative;
+
+}
+
+
+#scatter-story .step {
+
+  min-height:
+    65vh;
+
+  padding:
+    2em 1em;
+
+  opacity:
+    0.35;
+
+  transition:
+    opacity 250ms;
+
+}
+
+
+#scatter-story .step.active {
+
+  opacity:
+    1;
+
+}
+
+
+#scatter-story .step p {
+
+  line-height:
+    1.7;
+
+}
+
+
+
+/* -----------------------------------
+   Sticky visualization column
+----------------------------------- */
+
+#scatter-plot {
+
+  position:
+    sticky;
+
+  top:
+    1em;
+
+  left:
+    0;
+
+  bottom:
+    auto;
+
+  height:
+    90vh;
+
+  overflow:
+    auto;
+
+}
+
+
+
+/* ===================================
+   Responsive Lab 8 layout
+=================================== */
+
+@media (
+  max-width: 800px
+) {
+
+  #scrolly-1 {
+
+    display:
+      block;
+
+  }
+
+
+  #scatter-plot {
+
+    position:
+      relative;
+
+    height:
+      auto;
+
+  }
+
+
+  #scatter-story .step {
+
+    min-height:
+      auto;
+
+    margin-block:
+      3em;
+
+  }
+
+
+  #files {
+
+    grid-template-columns:
+      1fr;
+
+  }
+  #files > div {
+    display:
+      block;
+  }
+  #files dd {
+    margin-top:
+      0.5em;
+  }
+  .commit-filter label {
+    flex-wrap:
+      wrap;
+  }
+  .commit-filter time {
+    margin-left:
+      0;
+  }
+
 }
