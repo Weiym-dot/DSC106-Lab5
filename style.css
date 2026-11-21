@@ -323,35 +323,20 @@ path:not(:hover) {
 .commit-filter {
   margin-block: 2em;
 }
-
-
 .commit-filter label {
   display: flex;
-
-  grid-column: auto;
-
-  grid-template-columns: none;
-
+  flex-wrap: wrap;
   align-items: baseline;
-
-  gap: 1em;
+  gap: 0.5em 1em;
 }
-
-
 .commit-filter time {
   margin-left: auto;
-
   color: #666;
-
-  font-variant-numeric:
-    tabular-nums;
+  font-variant-numeric: tabular-nums;
 }
-
-
 #commit-progress {
+  flex-basis: 100%;
   width: 100%;
-
-  margin-top: 0.75em;
 }
 
 
@@ -798,25 +783,11 @@ dl.info[hidden]:not(
 ----------------------------------- */
 
 #scatter-plot {
-
-  position:
-    sticky;
-
-  top:
-    1em;
-
-  left:
-    0;
-
-  bottom:
-    auto;
-
-  height:
-    90vh;
-
-  overflow:
-    auto;
-
+  position: sticky;
+  top: 1em;
+  left: 0;
+  bottom: auto;
+  height: 50vh;
 }
 
 
